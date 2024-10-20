@@ -32,9 +32,6 @@ void loop()
     // Controle da irrigação com base nos valores lidos dos sensores
     controlarIrrigacao(temperatura, umidade, distanciaAgua, luzAmbiente, movimento);
 
-    // Verifica se há movimento e alerta sobre segurança
-    verificarSeguranca(movimento);
-
     delay(2000); // Pausa de 2 segundos entre as leituras para dar tempo ao sistema de atualizar os sensores
 }
 
@@ -114,16 +111,6 @@ void controlarIrrigacao(float temp, float umidade, float nivelAgua, int luzAmbie
     }
     else
     {
-        Serial.println("Irrigação desativada");
-    }
-}
-
-// Função para verificar a segurança com base no sensor PIR
-void verificarSeguranca(int movimento)
-{
-    if (movimento == HIGH)
-    { // Se houver movimento detectado
-        Serial.println("Movimento detectado! Verificar segurança.");
-        // Código para acionar um alarme ou outra ação de segurança
+        Serial.println("Irrigação desativada.");
     }
 }
