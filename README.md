@@ -76,14 +76,14 @@ Clique na imagem acima ou [aqui](https://wokwi.com/projects/412291283723852801) 
 
 1. Abra a **IDE Arduino**.
 2. Instale as bibliotecas necessárias:
-   - `DHT.h` para o sensor DHT22.
-   - `Ultrasonic.h` para o sensor HC-SR04.
+   - `DHT sensor library` para o sensor DHT22.
+   - `Ultrasonic` para o sensor HC-SR04.
 3. Conecte o ESP32 ao computador via USB e faça o upload do código.
 4. Abra o Monitor Serial na IDE para acompanhar as leituras dos sensores em tempo real.
 
 ## Instruções de Instalação e Dependências
 
-- **Bibliotecas necessárias:** `DHT.h`, `Ultrasonic.h` (instaláveis via IDE Arduino).
+- **Bibliotecas necessárias:** `DHT sensor library`, `Ultrasonic` (instaláveis via IDE Arduino).
 - **Plataforma:** Wokwi.com ou IDE Arduino para simulações e deploy no ESP32.
 - **Hardware:** ESP32, DHT22, HC-SR04, PIR, LDR.
 
