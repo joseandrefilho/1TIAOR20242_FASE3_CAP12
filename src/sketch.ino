@@ -12,6 +12,13 @@
 DHT dht(DHTPIN, DHTTYPE);                // Criando o objeto dht com o pino e o tipo do sensor
 Ultrasonic ultrasonic(TRIGPIN, ECHOPIN); // Criando o objeto ultrasonic com os pinos Trigger e Echo
 
+// Definição de constantes para facilitar a manutenção e ajuste do sistema
+const float UMIDADE_MINIMA = 40.0;
+const float TEMPERATURA_IDEAL_MIN = 24.0;
+const float TEMPERATURA_IDEAL_MAX = 30.0;
+const float TEMPERATURA_ALTA = 30.0;
+const int LUMINOSIDADE_ALTA = 500;
+
 void setup()
 {
     Serial.begin(115200);   // Inicializando a comunicação serial com uma taxa de 115200 bps (para exibir informações no monitor serial)
@@ -20,19 +27,26 @@ void setup()
     dht.begin();            // Inicializando o sensor DHT22
 }
 
+// Função principal
 void loop()
 {
-    // Chama as funções de leitura dos sensores e armazena os valores em variáveis
-    float temperatura = lerTemperatura(); // Lê a temperatura ambiente do DHT22
-    float umidade = lerUmidade();         // Lê a umidade do DHT22
-    float distanciaAgua = lerNivelAgua(); // Lê o nível de água no reservatório usando o HC-SR04
-    int movimento = detectarMovimento();  // Verifica se há movimento detectado pelo PIR
-    int luzAmbiente = lerLuminosidade();  // Lê o nível de luminosidade ambiente usando o LDR
+    // Monitoramento climático
+    float temperatura = lerTemperatura(); // Função para ler temperatura do DHT22
+    float umidade = lerUmidade();         // Função para ler umidade do DHT22
 
-    // Controle da irrigação com base nos valores lidos dos sensores
+    // Controle de irrigação automatizada
+    float distanciaAgua = lerNivelAgua(); // Função para ler nível de água com o HC-SR04
+
+    // Detecção de presença
+    int movimento = detectarMovimento(); // Função para ler estado do PIR
+
+    // Ajuste de irrigação com base na luminosidade
+    int luzAmbiente = lerLuminosidade(); // Função para ler luminosidade com o LDR
+
+    // Controlar a irrigação com base na temperatura, umidade, nível de água e luminosidade
     controlarIrrigacao(temperatura, umidade, distanciaAgua, luzAmbiente, movimento);
 
-    delay(2000); // Pausa de 2 segundos entre as leituras para dar tempo ao sistema de atualizar os sensores
+    delay(2000); // Pausa para evitar leitura contínua
 }
 
 // Função para ler a temperatura do DHT22
@@ -92,25 +106,93 @@ int lerLuminosidade()
     return valorLuz;                   // Retorna o valor lido da luminosidade
 }
 
-// Função para controlar a irrigação com base nas leituras dos sensores
-// Função para controlar a irrigação
-void controlarIrrigacao(float temp, float umidade, float nivelAgua, int luzAmbiente, int movimento)
+// Função auxiliar para ativar irrigação e exibir mensagens
+void ativarIrrigacao(float aguaNecessaria, float nivelAgua)
 {
-    // Se houver movimento, a irrigação não será ativada
-    if (movimento == HIGH)
+    if (nivelAgua >= aguaNecessaria)
     {
-        Serial.println("Movimento detectado! Irrigação não será ativada.");
-        return; // Sai da função para não prosseguir com a irrigação
-    }
-
-    // Condições normais para ativar a irrigação se não houver movimento detectado
-    if (umidade < 40 && nivelAgua > 10 && luzAmbiente < 500)
-    {
-        Serial.println("Irrigação ativada!");
-        // Aqui você pode adicionar o código para ligar a bomba d'água
+        Serial.print("Nível de água suficiente: ");
+        Serial.print(nivelAgua);
+        Serial.println(" cm, ativando irrigação.");
+        // Lógica para ativar a irrigação (por exemplo, ligar a bomba)
     }
     else
     {
-        Serial.println("Irrigação desativada.");
+        Serial.print("Nível de água insuficiente: ");
+        Serial.print(nivelAgua);
+        Serial.print(" cm, necessário: ");
+        Serial.print(aguaNecessaria);
+        Serial.println(" cm. Irrigação não será ativada.");
+        // Sai da função se não houver água suficiente
+    }
+}
+
+// Função principal para controlar a irrigação
+void controlarIrrigacao(float temperatura, float umidade, float nivelAgua, int luzAmbiente, int movimento)
+{
+    // Se houver movimento detectado, a irrigação não será ativada
+    if (movimento == HIGH)
+    {
+        Serial.println("Movimento detectado! Irrigação não será ativada.");
+        return; // Sai da função, impedindo a irrigação
+    }
+
+    // Verificar se a umidade está abaixo do ideal
+    if (umidade < UMIDADE_MINIMA)
+    {
+        Serial.println("Umidade baixa, avaliando necessidade de irrigação...");
+
+        // Definir volume de água necessário com base na temperatura e luminosidade
+        float aguaNecessaria;
+
+        // Verificar se a temperatura está no intervalo ideal
+        if (temperatura >= TEMPERATURA_IDEAL_MIN && temperatura <= TEMPERATURA_IDEAL_MAX)
+        {
+            Serial.println("Temperatura ideal, avaliando luminosidade...");
+
+            // Avaliar luminosidade para definir intensidade da irrigação
+            if (luzAmbiente > LUMINOSIDADE_ALTA)
+            {
+                Serial.println("Dia ensolarado, ativando irrigação intensa.");
+                aguaNecessaria = 20.0; // Exemplo: 20 cm de água necessária
+            }
+            else
+            {
+                Serial.println("Dia nublado, ativando irrigação leve.");
+                aguaNecessaria = 10.0; // Exemplo: 10 cm de água necessária
+            }
+
+            // Verificar se a temperatura é alta
+        }
+        else if (temperatura > TEMPERATURA_ALTA)
+        {
+            Serial.println("Temperatura alta, avaliando luminosidade...");
+
+            // Avaliar luminosidade para ajustar a irrigação em alta temperatura
+            if (luzAmbiente > LUMINOSIDADE_ALTA)
+            {
+                Serial.println("Dia ensolarado com alta temperatura, ativando irrigação muito intensa.");
+                aguaNecessaria = 25.0; // Exemplo: 25 cm de água necessária
+            }
+            else
+            {
+                Serial.println("Dia nublado com alta temperatura, ativando irrigação moderada.");
+                aguaNecessaria = 15.0; // Exemplo: 15 cm de água necessária
+            }
+
+            // Temperatura abaixo do ideal
+        }
+        else
+        {
+            Serial.println("Temperatura baixa, ativando irrigação leve.");
+            aguaNecessaria = 10.0; // Exemplo: 10 cm de água necessária
+        }
+
+        // Ativar irrigação com base no nível de água e necessidade calculada
+        ativarIrrigacao(aguaNecessaria, nivelAgua);
+    }
+    else
+    {
+        Serial.println("Umidade adequada, irrigação não necessária.");
     }
 }

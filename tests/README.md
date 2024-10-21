@@ -75,27 +75,76 @@ Este diretório contém informações sobre os testes realizados para validar o 
    **Exemplo de saída no Monitor Serial:**
 
    ```plaintext
-   Luminosidade: 1001
+   Luminosidade: 423
    ```
 
    **Print do Monitor Serial:**
    ![Print LDR](print-ldr.png)
 
-### 4. **Função controlarIrrigacao**
+### 4. **Controlar Irrigacao**
 
-- A função `controlarIrrigacao` foi testada para garantir que a irrigação seja ativada corretamente quando não for detectado movimento, a umidade estiver abaixo de 40%, nivel de água no reservatório for acima de 10% e a luminosidade for maior que 500.
+- A função `controlarIrrigacao` foi testada para garantir que a irrigação seja ativada corretamente quando não for detectado movimento, a umidade estiver abaixo de 40%, o nível de água no reservatório for suficiente para o tipo de irrigação necessário (com base em temperatura e luminosidade), e a luminosidade for maior que 500 em dias ensolarados ou ajustada adequadamente em dias nublados.
 
-   **Exemplo de saída no Monitor Serial:**
 
-   ```plaintext
-   Movimento detectado! Irrigação não será ativada.
-   Irrigação ativada!
-   Irrigação desativada.
+#### Exemplo de saída no Monitor Serial ####
 
-   ```
+**1. Quando movimento for detectado:**
+```plaintext
+Movimento detectado! Irrigação não será ativada.
+```
 
-**Print do Monitor Serial:**
-   ![Print LDR](print-controlarIrrigacao.png)
+**2. Quando a umidade estiver acima de 40% (sem necessidade de irrigação):**
+```plaintext
+Umidade adequada, irrigação não necessária.
+```
+
+**3. Quando a umidade for baixa e a temperatura estiver entre 24ºC e 30ºC (temperatura ideal):**
+- **Em dia ensolarado** (luminosidade > 500):
+```plaintext
+Umidade baixa, avaliando necessidade de irrigação...
+Temperatura ideal, avaliando luminosidade...
+Dia ensolarado, ativando irrigação intensa.
+Nível de água suficiente: [valor] cm, ativando irrigação.
+```
+
+- **Em dia nublado** (luminosidade ≤ 500):
+```plaintext
+Umidade baixa, avaliando necessidade de irrigação...
+Temperatura ideal, avaliando luminosidade...
+Dia nublado, ativando irrigação leve.
+Nível de água suficiente: [valor] cm, ativando irrigação.
+```
+
+**4. Quando a umidade for baixa e a temperatura for superior a 30ºC (temperatura alta):**
+- **Em dia ensolarado** (luminosidade > 500):
+```plaintext
+Umidade baixa, avaliando necessidade de irrigação...
+Temperatura alta, avaliando luminosidade...
+Dia ensolarado com alta temperatura, ativando irrigação muito intensa.
+Nível de água suficiente: [valor] cm, ativando irrigação.
+```
+
+- **Em dia nublado** (luminosidade ≤ 500):
+```plaintext
+Umidade baixa, avaliando necessidade de irrigação...
+Temperatura alta, avaliando luminosidade...
+Dia nublado com alta temperatura, ativando irrigação moderada.
+Nível de água suficiente: [valor] cm, ativando irrigação.
+```
+
+**5. Quando a umidade for baixa e a temperatura estiver abaixo de 24ºC (temperatura baixa):**
+```plaintext
+Umidade baixa, avaliando necessidade de irrigação...
+Temperatura baixa, ativando irrigação leve.
+Nível de água suficiente: [valor] cm, ativando irrigação.
+```
+
+**6. Quando o nível de água for insuficiente (independentemente das outras condições):**
+```plaintext
+Nível de água insuficiente: [valor] cm, necessário: [valor calculado] cm. Irrigação não será ativada.
+```
+
+
 ---
 
 Esses testes garantem o correto funcionamento de todos os sensores e das decisões automatizadas tomadas pelo sistema. Cada teste foi validado com base nas leituras apresentadas no Monitor Serial.
