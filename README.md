@@ -19,9 +19,9 @@
 
 ## Objetivo do Projeto
 
-O objetivo deste projeto é desenvolver um sistema inteligente de monitoramento agrícola utilizando o microcontrolador ESP32 e sensores diversos para coletar dados ambientais e automatizar decisões, como o controle de irrigação e a vigilância em áreas monitoradas.
+Este projeto visa criar um sistema inteligente de monitoramento agrícola utilizando o microcontrolador ESP32 e sensores para coletar dados ambientais e automatizar a irrigação baseado na cultura de cana-de-açúcar. O sistema integra as variáveis de temperatura, umidade, luminosidade e nível de água no reservatório para tomar decisões automatizadas, garantindo eficiência no uso de água e melhor desenvolvimento da planta.
 
-O sistema combina sensores para medir umidade, temperatura, nível de água, movimento e luminosidade, garantindo que a irrigação seja acionada automaticamente com base nas condições do ambiente, exceto quando houver detecção de movimento no local.
+O sistema também incorpora uma lógica de segurança, onde a irrigação é interrompida caso o sensor PIR detecte movimento de pessoas ou animais.
 
 ## Estrutura do Repositório
 
@@ -34,11 +34,22 @@ O sistema combina sensores para medir umidade, temperatura, nível de água, mov
 │   ├── circuito_diagrama.png   # Diagrama do circuito utilizado
 ├── src/
 │   ├── sketch.ino              # Código-fonte principal
+│   ├── diagram.json            # Arquivo JSON que representa o diagrama do circuito
 ├── tests/
 │   └── README.md               # Documentação dos testes dos sensores e funções do projeto
 │   └── *.png                   # Prints dos testes dos sensores e funções do projeto utilizados no README
 ├── README.md                   # Este arquivo
 ```
+
+## Funcionalidades
+
+1. **Monitoramento climático**: O sensor DHT22 mede constantemente a temperatura e umidade do ambiente, ajustando a irrigação de acordo com os níveis ideais baseado na cultura de cana-de-açúcar.
+   
+2. **Controle de irrigação automatizada**: O sensor HC-SR04 verifica o nível de água no reservatório e garante que a irrigação só seja ativada quando há água suficiente disponível para o tipo de irrigação necessário (leve, moderada ou intensiva).
+
+3. **Detecção de presença**: O sensor PIR detecta a presença de intrusos (humanos ou animais) e bloqueia a ativação da irrigação por motivos de segurança.
+
+4. **Ajuste de irrigação com base na luminosidade**: O sensor LDR ajusta a quantidade de água utilizada na irrigação, aumentando-a em dias ensolarados e reduzindo-a em dias nublados, para garantir eficiência no uso de água.
 
 ## Desenho do Circuito Completo
 
